@@ -1,4 +1,4 @@
-class QueryBuilder:
+class SqlQueryBuilder:
     @staticmethod
     def build_room_list_query() -> str:
         return """
