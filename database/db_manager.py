@@ -4,7 +4,6 @@ import json
 from typing import Union
 
 
-
 class DatabaseManager:
     def __init__(self, room_file, students_file) -> None:
         """Initialize the DatabaseManager.
@@ -57,14 +56,21 @@ class DatabaseManager:
         """
         try:
             cur = self.conn.cursor()
-            cur.execute(query, vars)
-            return cur.fetchall()
+            if 'insert' in query.lower():
+                cur.executemany(query, vars)
+            elif 'create' in query.lower():
+                cur.execute(query, vars)
+            else:
+                cur.execute(query, vars)
+                return cur.fetchall()
 
         except Exception as e:
             return None
 
         finally:
             cur.close()
+            self.disconnect()
+            self.connect()
 
     def create_tables(self) -> None:
         """Create database tables if they do not exist."""
@@ -84,17 +90,17 @@ class DatabaseManager:
             )
         """)
 
-    # TODO это неадекват
     def insert_data_from_json(self) -> None:
         """Insert data from JSON files into the database."""
         with open(f'{self.room_file}', 'r') as file:
             rooms_data = json.load(file)
-            for room in rooms_data:
-                self.execute_query(
-                    "INSERT INTO room (id, name) VALUES (%s, %s)", (room['id'], room['name']))
+            room_values = [(room['id'], room['name']) for room in rooms_data]
+            self.execute_query(
+                """INSERT INTO room (id, name) VALUES (%s,%s)""", room_values)
 
         with open(f'{self.students_file}', 'r') as file:
             students_data = json.load(file)
-            for student in students_data:
-                self.execute_query("INSERT INTO students (id, name, birthday, sex, room_id) VALUES (%s, %s, %s, %s, %s)",
-                                   (student['id'], student['name'], student['birthday'], student['sex'], student['room']))
+            student_values = [(student['id'], student['name'], student['birthday'], student['sex'], student['room']) for
+                              student in students_data]
+            self.execute_query(
+                """INSERT INTO students (id, name, birthday, sex, room_id) VALUES (%s,%s,%s,%s,%s)""", student_values)
