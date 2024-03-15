@@ -1,6 +1,5 @@
-*** Note ***
+***Note*** docker-compose for upping PostgreSQL database with pgAdmin
 
-docker-compose for upping PostgreSQL database with pgAdmin
 ```
 docker-compose up
 ```
