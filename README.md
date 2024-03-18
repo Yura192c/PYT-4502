@@ -45,7 +45,7 @@ python main.py --fetch rooms_opposite_sexes --room data/rooms.json --students da
 
  After using the script, run
 
-```shell
+```sh
 docker-compose down -v
 ```
 
